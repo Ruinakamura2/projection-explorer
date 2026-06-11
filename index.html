@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Projection Explorer</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/p5@1.9.0/lib/p5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  </head>
+  <body>
+    <div id="layout">
+      <main id="app"></main>
+
+      <aside id="sidebar">
+
+        <!-- 投影 -->
+        <div class="group">
+          <h3>投影</h3>
+          <div class="ctrl-row">
+            <label>モード</label>
+            <select id="mode-select">
+              <option value="equidistant" selected>正距方位 (r∝θ)</option>
+              <option value="orthographic">正射影 (r∝sinθ)</option>
+              <option value="perspective">透視図法 (gnomonic)</option>
+              <option value="lambda_tan">λ-tan ブレンド</option>
+              <option value="mobius">メビウス変換</option>
+              <option value="kaleido">万華鏡</option>
+              <option value="weird">カスタム g</option>
+              <option value="stereo">ステレオグラフィック</option>
+              <option value="reverse">逆透視</option>
+              <option value="logmap">複素対数</option>
+              <option value="lambert">等積 (Lambert)</option>
+              <option value="power">冪乗族</option>
+              <option value="tanh_map">双曲線 (tanh)</option>
+              <option value="cpow">複素冪</option>
+              <option value="radripple">波紋</option>
+            </select>
+          </div>
+          <div class="ctrl-row" id="row-fov">
+            <label>魚眼 FOV°</label>
+            <input type="range" id="fov-slider" min="30" max="360" value="180" step="1">
+            <span class="val" id="fov-val">180</span>
+          </div>
+          <div class="ctrl-row" id="row-persp-fov" style="display:none">
+            <label>透視 FOV°</label>
+            <input type="range" id="persp-fov-slider" min="10" max="170" value="90" step="1">
+            <span class="val" id="persp-fov-val">90</span>
+          </div>
+          <div class="ctrl-row">
+            <label>表示倍率</label>
+            <input type="range" id="scale-slider" min="0.4" max="2.4" value="1" step="0.01">
+            <span class="val" id="scale-val">1.00</span>
+          </div>
+          <!-- モード別パラメータ -->
+          <div class="ctrl-row" id="row-lambda" style="display:none">
+            <label>λ</label>
+            <input type="range" id="lambda-slider" min="0" max="1" value="0.40" step="0.01">
+            <span class="val" id="lambda-val">0.40</span>
+          </div>
+          <div class="ctrl-row" id="row-mobius-a" style="display:none">
+            <label>a (möbius)</label>
+            <input type="range" id="mobius-a-slider" min="-0.85" max="0.85" value="-0.45" step="0.01">
+            <span class="val" id="mobius-a-val">-0.45</span>
+          </div>
+          <div class="ctrl-row" id="row-kaleido-n" style="display:none">
+            <label>分割数</label>
+            <input type="range" id="kaleido-n-slider" min="2" max="24" value="8" step="1">
+            <span class="val" id="kaleido-n-val">8</span>
+          </div>
+          <div class="ctrl-row" id="row-kaleido-rot" style="display:none">
+            <label>回転°</label>
+            <input type="range" id="kaleido-rot-slider" min="-180" max="180" value="0" step="1">
+            <span class="val" id="kaleido-rot-val">0</span>
+          </div>
+          <div class="ctrl-row" id="row-power-p" style="display:none">
+            <label>p: 指数</label>
+            <input type="range" id="power-p-slider" min="0.1" max="4.0" value="1.0" step="0.05">
+            <span class="val" id="power-p-val">1.00</span>
+          </div>
+          <div class="ctrl-row" id="row-tanh-k" style="display:none">
+            <label>k: 圧縮</label>
+            <input type="range" id="tanh-k-slider" min="0.2" max="8.0" value="2.0" step="0.1">
+            <span class="val" id="tanh-k-val">2.0</span>
+          </div>
+          <div class="ctrl-row" id="row-cpow-n" style="display:none">
+            <label>n: 冪</label>
+            <input type="range" id="cpow-n-slider" min="-3.0" max="4.0" value="2.0" step="0.1">
+            <span class="val" id="cpow-n-val">2.0</span>
+          </div>
+          <div class="ctrl-row" id="row-swirl" style="display:none">
+            <label>s: swirl</label>
+            <input type="range" id="swirl-slider" min="-4" max="4" value="1.1" step="0.01">
+            <span class="val" id="swirl-val">1.10</span>
+          </div>
+          <div class="ctrl-row" id="row-ripple" style="display:none">
+            <label>r: ripple</label>
+            <input type="range" id="ripple-slider" min="0" max="1.2" value="0.32" step="0.01">
+            <span class="val" id="ripple-val">0.32</span>
+          </div>
+          <div class="ctrl-row" id="row-fold" style="display:none">
+            <label>f: fold</label>
+            <input type="range" id="fold-slider" min="0" max="1.2" value="0.22" step="0.01">
+            <span class="val" id="fold-val">0.22</span>
+          </div>
+          <div class="ctrl-row" id="row-ripple-a" style="display:none">
+            <label>a: 振幅</label>
+            <input type="range" id="ripple-a-slider" min="0" max="0.4" value="0.03" step="0.01">
+            <span class="val" id="ripple-a-val">0.03</span>
+          </div>
+          <div class="ctrl-row" id="row-ripple-n" style="display:none">
+            <label>n: 波数</label>
+            <input type="range" id="ripple-n-slider" min="1" max="12" value="12" step="1">
+            <span class="val" id="ripple-n-val">12</span>
+          </div>
+          <div class="ctrl-row" id="row-ripple-speed" style="display:none">
+            <label>v: 速さ</label>
+            <input type="range" id="ripple-speed-slider" min="0" max="4.0" value="1.0" step="0.05">
+            <span class="val" id="ripple-speed-val">1.00</span>
+          </div>
+        </div>
+
+        <!-- カメラ -->
+        <div class="group">
+          <h3>カメラ</h3>
+          <div class="ctrl-row">
+            <label>上下</label>
+            <input type="range" id="pitch-slider" min="-89" max="89" value="0" step="0.1">
+            <span class="val" id="pitch-val">0.0°</span>
+          </div>
+          <div class="ctrl-row">
+            <label>左右</label>
+            <input type="range" id="yaw-slider" min="-180" max="180" value="0" step="0.1">
+            <span class="val" id="yaw-val">0.0°</span>
+          </div>
+          <div class="ctrl-row">
+            <label>傾き</label>
+            <input type="range" id="roll-slider" min="-180" max="180" value="0" step="0.1">
+            <span class="val" id="roll-val">0.0°</span>
+          </div>
+          <div class="subsection-label">位置</div>
+          <div class="xyz-row">
+            <div class="xyz-item">
+              <label>x</label>
+              <input type="number" id="cam-x-input" value="2.00" step="0.1">
+            </div>
+            <div class="xyz-item">
+              <label>y</label>
+              <input type="number" id="cam-y-input" value="1.00" step="0.1">
+            </div>
+            <div class="xyz-item">
+              <label>z</label>
+              <input type="number" id="cam-z-input" value="-0.50" step="0.1">
+            </div>
+          </div>
+        </div>
+
+        <!-- オブジェクト -->
+        <div class="group">
+          <h3>オブジェクト</h3>
+          <div class="subsection-label">箱</div>
+          <div class="xyz-row">
+            <div class="xyz-item">
+              <label>x</label>
+              <input type="number" id="box-x-input" value="1.4" step="0.1">
+            </div>
+            <div class="xyz-item">
+              <label>y</label>
+              <input type="number" id="box-y-input" value="0.2" step="0.1">
+            </div>
+            <div class="xyz-item">
+              <label>z</label>
+              <input type="number" id="box-z-input" value="7.0" step="0.1">
+            </div>
+          </div>
+          <div class="subsection-label">球</div>
+          <div class="xyz-row">
+            <div class="xyz-item">
+              <label>x</label>
+              <input type="number" id="sphere-x-input" value="5.0" step="0.1">
+            </div>
+            <div class="xyz-item">
+              <label>y</label>
+              <input type="number" id="sphere-y-input" value="0.2" step="0.1">
+            </div>
+            <div class="xyz-item">
+              <label>z</label>
+              <input type="number" id="sphere-z-input" value="7.0" step="0.1">
+            </div>
+          </div>
+        </div>
+
+        <!-- 数式 -->
+        <div id="equation-panel"></div>
+
+      </aside>
+    </div>
+
+    <!-- hidden inputs for internal grid params -->
+    <div style="display:none">
+      <input type="range" id="grid-range-slider" min="4" max="48" value="20" step="1">
+      <input type="range" id="grid-fade-slider" min="10" max="300" value="20" step="5">
+    </div>
+
+    <script src="scene.js"></script>
+  </body>
+</html>
