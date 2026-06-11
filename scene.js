@@ -11,8 +11,6 @@ let sphereXInput, sphereYInput, sphereZInput;
 let gridRangeSlider, gridFadeSlider;
 let mapLambdaSlider, mapMobiusASlider;
 let mapKaleidoNSlider, mapKaleidoRotSlider;
-let mapPowerPSlider;
-let mapTanhKSlider;
 let mapCPowNSlider;
 let mapRadRippleASlider, mapRadRippleNSlider, mapRadRippleSpeedSlider;
 let wavePhase = 0;
@@ -141,8 +139,6 @@ function setup() {
   mapMobiusASlider     = makeSlider('mobius-a-slider',     'row-mobius-a');
   mapKaleidoNSlider    = makeSlider('kaleido-n-slider',    'row-kaleido-n');
   mapKaleidoRotSlider  = makeSlider('kaleido-rot-slider',  'row-kaleido-rot');
-  mapPowerPSlider      = makeSlider('power-p-slider',      'row-power-p');
-  mapTanhKSlider       = makeSlider('tanh-k-slider',       'row-tanh-k');
   mapCPowNSlider       = makeSlider('cpow-n-slider',       'row-cpow-n');
   mapSwirlSlider       = makeSlider('swirl-slider',        'row-swirl');
   mapRippleSlider      = makeSlider('ripple-slider',       'row-ripple');
@@ -464,15 +460,6 @@ function project(p, thetaMax, imageRadius, near) {
   } else if (mapMode === "lambert") {
     rn = sin(theta * 0.5) / max(1e-6, sin(thetaMax * 0.5));
 
-  } else if (mapMode === "power") {
-    const p = mapPowerPSlider ? mapPowerPSlider.value() : 1;
-    rn = pow(theta / max(1e-6, thetaMax), p);
-
-  } else if (mapMode === "tanh_map") {
-    const k = mapTanhKSlider ? mapTanhKSlider.value() : 2;
-    const t = theta / max(1e-6, thetaMax);
-    rn = tanh(k * t) / max(1e-6, tanh(k));
-
   } else if (mapMode === "radripple") {
     const a = mapRadRippleASlider ? mapRadRippleASlider.value() : 0.2;
     const n = mapRadRippleNSlider ? mapRadRippleNSlider.value() : 3;
@@ -754,8 +741,6 @@ function updateModeControls(mode) {
   setVisible(mapSwirlSlider,       mode === "weird");
   setVisible(mapRippleSlider,      mode === "weird");
   setVisible(mapFoldSlider,        mode === "weird");
-  setVisible(mapPowerPSlider,      mode === "power");
-  setVisible(mapTanhKSlider,       mode === "tanh_map");
   setVisible(mapCPowNSlider,       mode === "cpow");
   setVisible(mapRadRippleASlider,    mode === "radripple");
   setVisible(mapRadRippleNSlider,    mode === "radripple");
@@ -798,8 +783,6 @@ const EQUATIONS = {
   mobius:       ["möbius disk",              ["z = \\rho\\,e^{i\\phi},\\quad w = \\frac{z+a}{1+\\bar{a}z}", "x = c_x + r_x\\,\\mathrm{Re}(w),\\quad y = c_y - r_y\\,\\mathrm{Im}(w)"]],
   kaleido:      ["kaleidoscope",             ["\\phi' = \\operatorname{mirror}\\!\\left(\\phi,\\,\\tfrac{2\\pi}{n}\\right)", "x = c_x + \\rho\\,r_x\\cos\\phi',\\quad y = c_y - \\rho\\,r_y\\sin\\phi'"]],
   lambert:      ["等積射影 (Lambert)",       ["\\rho = \\frac{\\sin(\\theta/2)}{\\sin(\\theta_{\\max}/2)}", "x = c_x + \\rho\\,r_x\\cos\\phi,\\quad y = c_y - \\rho\\,r_y\\sin\\phi"]],
-  power:        ["冪乗族",                   ["\\rho = \\left(\\frac{\\theta}{\\theta_{\\max}}\\right)^{p}", "x = c_x + \\rho\\,r_x\\cos\\phi,\\quad y = c_y - \\rho\\,r_y\\sin\\phi"]],
-  tanh_map:     ["双曲線写像",               ["t = \\theta/\\theta_{\\max}", "\\rho = \\tanh(k\\,t)\\,/\\,\\tanh(k)"]],
   cpow:         ["複素冪",                   ["z = \\rho\\,e^{i\\phi},\\quad w = z^n", "\\rho' = |w|,\\quad \\phi' = \\arg(w)"]],
   radripple:    ["波紋写像",                 ["t = \\theta/\\theta_{\\max}", "\\rho = t + a\\sin(n\\pi t)"]],
   stereo:       ["ステレオグラフィック",     ["\\rho = \\frac{\\tan(\\theta/2)}{\\tan(\\theta_{\\max}/2)}", "x = c_x + \\rho\\,r_x\\cos\\phi,\\quad y = c_y - \\rho\\,r_y\\sin\\phi"]],
