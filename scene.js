@@ -25,7 +25,7 @@ const LAMBDA_FOV_AT_ONE  = 90;
 
 // ── Scene state ────────────────────────────────────────────────────────────
 const camera = {
-  position: { x: 2, y: 1, z: -0.5 },
+  position: { x: 2, y: 1, z: -4 },
   rotation: { x: 0, y: 0, z: 0 },
 };
 
@@ -94,7 +94,7 @@ function makeSelect(id) {
 
 // ── Setup ──────────────────────────────────────────────────────────────────
 function canvasSide() {
-  return floor(min(windowWidth - 242, windowHeight));
+  return floor(min(windowWidth, windowHeight));
 }
 
 function setup() {
@@ -807,15 +807,16 @@ function updateEquationPanel(mode) {
 // ── Key help panel ─────────────────────────────────────────────────────────
 function createKeyHelpPanel() {
   const d = createDiv(
-    "<b>移動:</b> W/S = 前後 &nbsp; A/D = 左右 &nbsp; Q/E = 上下 &nbsp;&nbsp; " +
-    "<b>視点:</b> ↑↓ = 上下向き &nbsp; ←→ = 左右向き"
+    "<b>位置:</b> W/S = 前後 &nbsp; A/D = 左右 &nbsp; Q/E = 上下 &nbsp;&nbsp; " +
+    "<b>向き回転:</b> ↑↓ = 上下 &nbsp; ←→ = 左右 &nbsp;&nbsp; " +
+    "<b>設定パネル:</b> N"
   );
   d.style("position", "fixed");
   d.style("bottom", "10px");
   d.style("left", "50%");
   d.style("transform", "translateX(-50%)");
   d.style("font-family", "sans-serif");
-  d.style("font-size", "12px");
+  d.style("font-size", "15px");
   d.style("color", "#555");
   d.style("background", "rgba(255,255,255,0.85)");
   d.style("padding", "5px 16px");
