@@ -212,6 +212,14 @@
           document.getElementById('cam-x-input').value = '2.00';
           document.getElementById('cam-y-input').value = '1.00';
           document.getElementById('cam-z-input').value = '-4.00';
+          ['pitch-slider','yaw-slider','roll-slider'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) { el.value = 0; el.dispatchEvent(new Event('input')); }
+          });
+          if (typeof camera !== 'undefined') {
+            camera.position.x = 2; camera.position.y = 1; camera.position.z = -4;
+            camera.rotation.x = 0; camera.rotation.y = 0; camera.rotation.z = 0;
+          }
         });
         document.addEventListener('keydown', e => {
           if (e.key === 'n' || e.key === 'N') {
